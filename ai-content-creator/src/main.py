@@ -51,6 +51,17 @@ LOGO_BACKGROUND_OPTIONS = [
     (f"{name} — {hex_value}", hex_value)
     for name, hex_value in LOGO_BACKGROUND_COLORS.items()
 ]
+CUSTOM_BACKGROUND_SWATCHES = [
+    ("Soft Blush Mist", "#FBE4EA"),
+    ("Powder Pink Glow", "#FCE9EE"),
+    ("Cream Glow", "#FFF9EE"),
+    ("Warm Ivory Light", "#FCF5E8"),
+    ("Lavender Mist", "#F0EAFE"),
+    ("Powder Blue Mist", "#E7F1FB"),
+    ("Sage Mist", "#E5EFE0"),
+    ("Mint Glow", "#EDF8F0"),
+    ("Peach Mist", "#FCE9DE"),
+]
 
 EXAMPLES = [
     ["LinkedIn Post", "new hiring initiative"],
@@ -74,6 +85,25 @@ def render_background_preview(background_color, custom_background):
         </div>
     </div>
     """
+
+
+def apply_custom_background_swatch(swatch_hex):
+    """Use a pastel swatch as the custom background and switch the selector to Custom."""
+    swatch_hex = (swatch_hex or "").strip() or "#F7D6E0"
+    return (
+        gr.update(value="Custom"),
+        gr.update(value=swatch_hex),
+        render_background_preview("Custom", swatch_hex),
+    )
+
+
+def apply_custom_background_hex(custom_background):
+    """Keep the custom hex field and selector in sync."""
+    custom_background = (custom_background or "").strip() or "#F7D6E0"
+    return (
+        gr.update(value="Custom"),
+        render_background_preview("Custom", custom_background),
+    )
 
 
 def generate_content(content_type, topic, brand_mode="recru_ai", source_text="", visual_style=""):
@@ -203,7 +233,7 @@ def generate_all(
 def build_app():
     """Create the Gradio interface."""
     with gr.Blocks() as demo:
-        with gr.Column(elem_classes=["shell"]):
+        with gr.Column(elem_classes=["shell", "dark-ui"]):
             gr.HTML(
                 """
                 <div class="app-header">
@@ -218,13 +248,15 @@ def build_app():
                 """
             )
 
-        with gr.Row():
-            with gr.Column(scale=1, elem_classes=["card"]):
+        with gr.Row(elem_classes=["app-layout"]):
+            with gr.Column(scale=1, elem_classes=["card", "main-panel"]):
+                gr.HTML('<div class="badge-label">Content type</div>')
                 content_type = gr.Radio(
                     choices=CONTENT_TYPES,
                     value=CONTENT_TYPES[0],
-                    label="Content type",
+                    label=None,
                     elem_id="content-type-pills",
+                    elem_classes=["content-type-card"],
                 )
 
                 with gr.Tabs():
@@ -237,17 +269,19 @@ def build_app():
                             </div>
                             """
                         )
+                        gr.HTML('<div class="badge-label">Topic</div>')
                         topic = gr.Textbox(
-                            label="Topic",
+                            label=None,
                             placeholder="e.g. recruitment for architecture industry",
                             lines=2,
                         )
                         gr.Markdown("Use a topic and the Recru AI brand knowledge to create content from scratch.")
-                        gr.Examples(
-                            examples=EXAMPLES,
-                            inputs=[content_type, topic],
-                            label="Try an example",
-                        )
+                        with gr.Group(elem_classes=["example-table"]):
+                            gr.Examples(
+                                examples=EXAMPLES,
+                                inputs=[content_type, topic],
+                                label="Try an example",
+                            )
                     with gr.Tab("Create from Source"):
                         gr.HTML(
                             """
@@ -258,18 +292,21 @@ def build_app():
                             """
                         )
                         gr.Markdown("Use an article link, PDF, or uploaded logo to create source-based content.")
+                        gr.HTML('<div class="badge-label">Article link</div>')
                         article_url = gr.Textbox(
-                            label="Article link",
+                            label=None,
                             placeholder="Paste article URL here",
                         )
+                        gr.HTML('<div class="badge-label">Upload PDF</div>')
                         uploaded_pdf = gr.File(
-                            label="Upload PDF",
+                            label=None,
                             file_types=[".pdf"],
                             type="filepath",
                         )
                         gr.Markdown("Optional: upload your company logo to customize the generated post.")
+                        gr.HTML('<div class="badge-label">Upload company logo</div>')
                         company_logo_path = gr.File(
-                            label="Upload company logo",
+                            label=None,
                             file_types=[".png", ".jpg", ".jpeg", ".svg"],
                             type="filepath",
                         )
@@ -280,30 +317,46 @@ def build_app():
                     value=True,
                     elem_id="generate-visual-toggle",
                 )
+                gr.HTML('<div class="badge-label">Visual style</div>')
                 visual_style = gr.Dropdown(
                     choices=VISUAL_STYLES,
                     value="Editorial announcement",
-                    label="Visual style",
+                    label=None,
+                    elem_classes=["dark-select"],
                 )
+                gr.HTML('<div class="badge-label">Background color</div>')
                 background_color = gr.Dropdown(
                     choices=BACKGROUND_OPTIONS,
                     value="Recru Pink",
-                    label="Background color",
+                    label=None,
+                    elem_classes=["dark-select"],
                 )
-                gr.Markdown("Choose a background color for your generated social post.")
+                gr.Markdown("Choose a background color for your generated social post.", elem_classes=["force-readable"])
+                gr.HTML('<div class="badge-label">Custom background hex</div>')
                 custom_background = gr.Textbox(
-                    label="Custom background hex",
+                    label=None,
                     placeholder="#F7D6E0",
+                    elem_classes=["dark-select"],
+                )
+                gr.Markdown("Pick a brighter pastel swatch to fill the custom hex field.", elem_classes=["force-readable"])
+                gr.HTML('<div class="badge-label">Pastel background swatches</div>')
+                background_swatch = gr.Dropdown(
+                    choices=CUSTOM_BACKGROUND_SWATCHES,
+                    value=CUSTOM_BACKGROUND_SWATCHES[0][1],
+                    label=None,
+                    elem_classes=["dark-select"],
                 )
                 background_preview = gr.HTML(
                     render_background_preview("Recru Pink", ""),
                     elem_id="background-preview",
                 )
+                gr.HTML('<div class="badge-label">Logo background color</div>')
                 logo_background_color = gr.Dropdown(
                     choices=LOGO_BACKGROUND_OPTIONS,
                     value="#F7D6E0",
-                    label="Logo background color",
+                    label=None,
                     elem_id="logo-background-select",
+                    elem_classes=["dark-select"],
                 )
                 generate_btn = gr.Button(
                     "Generate Content",
@@ -311,31 +364,40 @@ def build_app():
                     elem_id="generate-btn",
                 )
 
-            with gr.Column(scale=1, elem_classes=["card"]):
+            with gr.Column(scale=1, elem_classes=["card", "preview-panel"]):
+                gr.HTML('<div class="badge-label">Saved PDF</div>')
                 output_pdf = gr.DownloadButton(
                     label="Download PDF",
                     value=None,
                     variant="secondary",
                     interactive=False,
                     elem_id="download-pdf-btn",
+                    elem_classes=["download-button", "saved-pdf"],
                 )
+                gr.HTML('<div class="badge-label">Download PNG</div>')
                 output_png = gr.DownloadButton(
                     label="Download PNG",
                     value=None,
                     variant="secondary",
                     interactive=False,
                     elem_id="download-png-btn",
+                    elem_classes=["download-button"],
                 )
+                gr.HTML('<div class="badge-label">Generated preview</div>')
                 output_preview = gr.Image(
-                    label="Generated preview",
+                    label=None,
                     interactive=False,
                     type="filepath",
+                    elem_classes=["generated-preview", "preview-box"],
                 )
+                gr.HTML('<div class="badge-label">Generated content</div>')
                 output_content = gr.Markdown(
-                    label="Generated content",
+                    label=None,
                     elem_id="output-content",
+                    elem_classes=["output-box"],
                 )
-                output_md = gr.File(label="Saved Markdown")
+                gr.HTML('<div class="badge-label">Saved Markdown</div>')
+                output_md = gr.File(label=None, elem_classes=["saved-markdown", "saved-label"])
 
         with gr.Accordion("What this app does", open=False):
             gr.Markdown(
@@ -370,9 +432,15 @@ def build_app():
         )
 
         custom_background.change(
-            fn=render_background_preview,
-            inputs=[background_color, custom_background],
-            outputs=[background_preview],
+            fn=apply_custom_background_hex,
+            inputs=[custom_background],
+            outputs=[background_color, background_preview],
+        )
+
+        background_swatch.change(
+            fn=apply_custom_background_swatch,
+            inputs=[background_swatch],
+            outputs=[background_color, custom_background, background_preview],
         )
 
     return demo
@@ -394,19 +462,63 @@ if __name__ == "__main__":
         }
         body {
             background:
-                radial-gradient(circle at top left, rgba(123, 77, 255, 0.16), transparent 32%),
-                linear-gradient(180deg, #55575f 0%, #494b52 100%);
+                radial-gradient(circle at top center, rgba(255,255,255,0.08), transparent 28%),
+                linear-gradient(180deg, #575960 0%, #4B4D54 100%) !important;
+            color: #ffffff !important;
+        }
+        .app,
+        .app-container {
+            background: transparent !important;
+            color: #ffffff !important;
         }
         .gradio-container,
         .gradio-container * {
             box-sizing: border-box;
         }
+        .app-layout {
+            gap: 18px;
+            align-items: flex-start;
+        }
+        .dark-ui,
+        .dark-ui * {
+            color-scheme: dark;
+        }
+        .dark-ui .force-readable,
+        .dark-ui label,
+        .dark-ui button,
+        .dark-ui select,
+        .dark-ui option,
+        .dark-ui th,
+        .dark-ui td {
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+        }
+        .section-label,
+        .form-label,
+        .input-label,
+        .badge-label {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            background: #5B4DFF !important;
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+            font-weight: 800 !important;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .section-label *,
+        .form-label *,
+        .input-label *,
+        .badge-label * {
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+        }
         .logo-wrap {
             display: none;
         }
         .app-header {
-            margin-bottom: 32px;
-            padding: 24px 0 12px;
+            display: none;
         }
         .app-title {
             color: #ffffff;
@@ -433,9 +545,32 @@ if __name__ == "__main__":
         .hero {
             display: none;
         }
+        .main-panel,
+        .preview-panel,
+        .generator-panel,
+        .output-panel {
+            background: rgba(92,94,101,0.94) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+            padding: 16px;
+        }
+        .inner-card,
+        .form-card,
+        .content-type-card,
+        .source-panel,
+        .saved-panel,
+        .generated-preview,
+        .markdown-preview,
+        .pdf-preview {
+            background: rgba(75,77,85,0.96) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255,255,255,0.10) !important;
+        }
         .card [role="tab"] {
             color: #ffffff !important;
-            background: rgba(255,255,255,0.10) !important;
+            background: #2F3A4A !important;
             border: 1px solid rgba(255,255,255,0.12) !important;
             border-radius: 999px !important;
             box-shadow: none !important;
@@ -453,11 +588,11 @@ if __name__ == "__main__":
             margin: 2px 0 16px;
             padding: 14px 16px;
             border-radius: 16px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(75,77,85,0.96);
             border: 1px solid rgba(255,255,255,0.12);
         }
         .tab-intro-source {
-            background: rgba(255,255,255,0.08);
+            background: rgba(75,77,85,0.96);
         }
         .tab-intro-title {
             font-size: 1rem;
@@ -479,13 +614,22 @@ if __name__ == "__main__":
             margin: 0 10px 10px 0;
             padding: 10px 14px;
             border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            background: #2F3A4A;
             color: #ffffff;
             font-weight: 600;
             transition: all 0.18s ease;
             cursor: pointer;
             gap: 8px;
+        }
+        #content-type-pills label,
+        #content-type-pills label * {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+        #content-type-pills input[type="radio"] {
+            accent-color: #5B4DFF;
+            border: 1px solid #94A3B8;
         }
         #content-type-pills label:hover {
             border-color: rgba(109,93,252,0.45);
@@ -512,7 +656,7 @@ if __name__ == "__main__":
             margin: 8px 0 16px;
             padding: 12px 14px;
             border-radius: 16px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(75,77,85,0.96);
             border: 1px solid rgba(255,255,255,0.12);
         }
         .bg-preview-swatch {
@@ -546,10 +690,10 @@ if __name__ == "__main__":
             fill: #111111;
         }
         .card {
-            background: rgba(67,69,76,0.90);
-            border: 1px solid rgba(255,255,255,0.16);
-            border-radius: 18px;
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+            background: rgba(92,94,101,0.94) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
             color: #ffffff;
             padding: 16px;
         }
@@ -566,15 +710,32 @@ if __name__ == "__main__":
             color: #ffffff;
         }
         #output-content {
-            background: rgba(255,255,255,0.96);
-            color: #0f172a !important;
+            background: rgba(75,77,85,0.96);
+            color: #ffffff !important;
             padding: 16px 18px;
             border-radius: 16px;
-            border: 1px solid rgba(148,163,184,0.18);
+            border: 1px solid rgba(255,255,255,0.10);
             line-height: 1.75;
+            min-height: 140px;
+        }
+        .generated-preview,
+        .saved-markdown,
+        .saved-pdf,
+        .output-box,
+        .preview-box {
+            background: rgba(75,77,85,0.96) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+        }
+        .generated-preview *,
+        .saved-markdown *,
+        .saved-pdf *,
+        .output-box *,
+        .preview-box * {
+            color: #FFFFFF !important;
         }
         #output-content * {
-            color: #0f172a !important;
+            color: #ffffff !important;
         }
         .card h3, .card h4, .card p, .card span, .card label {
             color: #ffffff;
@@ -600,6 +761,17 @@ if __name__ == "__main__":
         .card .gr-markdown,
         .card .gr-html {
             color: #ffffff;
+        }
+        .card .gr-accordion label,
+        .card .gr-file label,
+        .card .gr-dropdown label,
+        .card .gr-textbox label,
+        .card .gr-radio label,
+        .card .gr-checkbox label,
+        .card .gr-markdown li,
+        .card .gr-markdown p {
+            color: #ffffff !important;
+            opacity: 1 !important;
         }
         #generate-visual-toggle {
             position: relative;
@@ -631,10 +803,21 @@ if __name__ == "__main__":
         .card input,
         .card textarea,
         .card select {
-            color: #0f172a !important;
+            color: #111827 !important;
             background: #ffffff !important;
-            border-color: rgba(148,163,184,0.28) !important;
+            border-color: rgba(255,255,255,0.12) !important;
             line-height: 1.6;
+        }
+        .dark-select,
+        select.dark-select {
+            background: #ffffff !important;
+            color: #111827 !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+        }
+        .dark-select option,
+        select.dark-select option {
+            background: #ffffff !important;
+            color: #111827 !important;
         }
         .card [data-testid="dropdown"],
         .card [data-testid="dropdown"] button,
@@ -642,24 +825,24 @@ if __name__ == "__main__":
         .card [aria-haspopup="listbox"],
         .card .wrap .secondary[role="button"] {
             background: #ffffff !important;
-            color: #0f172a !important;
-            border-color: rgba(148,163,184,0.24) !important;
+            color: #111827 !important;
+            border-color: rgba(255,255,255,0.12) !important;
         }
         .card [data-testid="dropdown"] *,
         .card [role="combobox"] *,
         .card [aria-haspopup="listbox"] *,
         .card [aria-haspopup="listbox"] svg {
-            color: #0f172a !important;
-            fill: #0f172a !important;
+            color: #111827 !important;
+            fill: #111827 !important;
         }
         .card [role="listbox"],
         .card ul[role="listbox"] {
-            background: #2f3a4a !important;
+            background: #ffffff !important;
             border-color: rgba(255,255,255,0.12) !important;
         }
         .card [role="option"] {
-            color: #ffffff !important;
-            background: #2f3a4a !important;
+            color: #111827 !important;
+            background: #ffffff !important;
         }
         .card [role="option"][aria-selected="true"],
         .card [role="option"]:hover {
@@ -673,18 +856,18 @@ if __name__ == "__main__":
         }
         .card [role="tab"],
         .card button[role="tab"] {
-            color: #0f172a !important;
-            background: rgba(248,250,252,0.96) !important;
-            border: 1px solid rgba(148,163,184,0.2) !important;
+            color: #ffffff !important;
+            background: #2F3A4A !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
             border-radius: 999px !important;
             box-shadow: none !important;
             font-weight: 700 !important;
         }
         .card [role="tab"][aria-selected="true"],
         .card button[role="tab"][aria-selected="true"] {
-            background: #0f172a !important;
+            background: #5B4DFF !important;
             color: #ffffff !important;
-            border-color: #0f172a !important;
+            border-color: #5B4DFF !important;
         }
         .card [role="tab"] *,
         .card button[role="tab"] * {
@@ -692,7 +875,29 @@ if __name__ == "__main__":
         }
         .card input::placeholder,
         .card textarea::placeholder {
-            color: #64748b !important;
+            color: rgba(17,24,39,0.55) !important;
+        }
+        .output-label,
+        .preview-label,
+        .saved-label,
+        .generated-label {
+            background: #5B4DFF !important;
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+        .output-label *,
+        .preview-label *,
+        .saved-label *,
+        .generated-label * {
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+        }
+        .output-box {
+            background: rgba(75,77,85,0.96) !important;
+            border: 1px solid rgba(255,255,255,0.10) !important;
+            border-radius: 16px !important;
         }
         .card .wrap,
         .card .wrap * {
@@ -717,25 +922,25 @@ if __name__ == "__main__":
         #logo-background-select [data-testid="dropdown"],
         #logo-background-select [role="combobox"],
         #logo-background-select button {
-            background: #2f3a4a !important;
-            color: #ffffff !important;
+            background: #ffffff !important;
+            color: #111827 !important;
             border-color: rgba(255,255,255,0.12) !important;
         }
         #logo-background-select [data-testid="dropdown"] *,
         #logo-background-select [role="combobox"] *,
         #logo-background-select button *,
         #logo-background-select svg {
-            color: #ffffff !important;
-            fill: #ffffff !important;
+            color: #111827 !important;
+            fill: #111827 !important;
         }
         #logo-background-select [role="listbox"],
         #logo-background-select ul[role="listbox"] {
-            background: #2f3a4a !important;
+            background: #ffffff !important;
             border-color: rgba(255,255,255,0.12) !important;
         }
         #logo-background-select [role="option"] {
-            color: #ffffff !important;
-            background: #2f3a4a !important;
+            color: #111827 !important;
+            background: #ffffff !important;
         }
         #logo-background-select [role="option"][aria-selected="true"],
         #logo-background-select [role="option"]:hover {
@@ -748,13 +953,13 @@ if __name__ == "__main__":
             fill: #ffffff !important;
         }
         #generate-btn button {
-            background: linear-gradient(135deg, #6d5dfc 0%, #5b4dff 100%) !important;
+            background: #5B4DFF !important;
             border: none !important;
             color: white !important;
             box-shadow: 0 14px 28px rgba(91, 77, 255, 0.30) !important;
         }
         #generate-btn button:hover {
-            background: linear-gradient(135deg, #7f72ff 0%, #6d5dfc 100%) !important;
+            background: #5B4DFF !important;
             box-shadow: 0 16px 32px rgba(91, 77, 255, 0.38) !important;
             transform: translateY(-1px);
         }
@@ -771,17 +976,45 @@ if __name__ == "__main__":
             font-weight: 700 !important;
             border: none !important;
             color: white !important;
-            background: linear-gradient(135deg, #6d5dfc 0%, #5b4dff 100%) !important;
+            background: #5B4DFF !important;
             box-shadow: 0 14px 28px rgba(91, 77, 255, 0.30) !important;
+            opacity: 1 !important;
+        }
+        .download-button,
+        .download-button button {
+            background: #5B4DFF !important;
+            color: #FFFFFF !important;
+            opacity: 1 !important;
         }
         #download-pdf-btn button:hover,
         #download-png-btn button:hover {
-            background: linear-gradient(135deg, #7f72ff 0%, #6d5dfc 100%) !important;
+            background: #5B4DFF !important;
+        }
+        .download-button:disabled,
+        .download-button button:disabled,
+        #download-pdf-btn button:disabled,
+        #download-png-btn button:disabled {
+            background: rgba(91,77,255,0.35) !important;
+            color: rgba(255,255,255,0.65) !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important;
         }
         #download-pdf-btn,
         #download-png-btn {
             width: 100%;
             margin-bottom: 14px;
+        }
+        .preview-panel .gr-image,
+        .preview-panel .gr-file,
+        .preview-panel .gr-markdown {
+            background: #1E2937 !important;
+            color: #ffffff !important;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.10);
+        }
+        .preview-panel .gr-image img {
+            background: #1E2937 !important;
         }
         .gr-dataframe,
         .gr-dataset {
@@ -796,18 +1029,36 @@ if __name__ == "__main__":
         }
         .gr-dataframe th,
         .gr-dataset th {
-            background: rgba(255,255,255,0.96) !important;
-            color: #0f172a !important;
+            background: #2F3A4A !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
             padding: 14px 16px !important;
-            border: 1px solid rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
         }
         .gr-dataframe td,
         .gr-dataset td {
-            background: rgba(63,64,70,0.96) !important;
+            background: #111827 !important;
             color: #ffffff !important;
             padding: 14px 16px !important;
-            border: 1px solid rgba(255,255,255,0.10) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+        }
+        .example-table {
+            background: #1E2937 !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+        }
+        .example-table th {
+            background: #2F3A4A !important;
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+        }
+        .example-table td {
+            background: #111827 !important;
+            color: #FFFFFF !important;
+            border-color: rgba(255,255,255,0.12) !important;
+        }
+        .example-table tr:hover td {
+            background: #243244 !important;
         }
         @media (max-width: 900px) {
             .card {
