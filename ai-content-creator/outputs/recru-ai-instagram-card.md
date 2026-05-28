@@ -1,35 +1,27 @@
-**Instagram Card Concept: Brand Announcement**
+**Instagram Card Concept: Design Studio Hiring**
 
 ---
 
-**Visual Style:** Editorial Announcement
+### Visual Headline
+**Design Studio Hiring Made Simple**
 
 ---
 
-**Headline:**  
-**Exciting News from Recru AI!**
+### Subheading
+**Struggling to Find the Right Talent?**
 
 ---
 
-**Subheadline:**  
-**Faster, Smarter Hiring for Creative Firms.**
+### Body Text
+**Many design studios face urgent hiring needs but lack the time to sift through endless CVs. Traditional recruitment can be slow and costly.**
+
+- Finding qualified candidates can feel overwhelming.
+- You might lose top talent to competitors.
+- Hiring mistakes can delay projects and hurt team morale.
+
+**Recru AI streamlines the hiring process with a human-led, AI-supported approach. We focus on the design talent you need without the hassle.**
 
 ---
 
-**Body Text:**  
-Are you tired of long hiring processes and costly recruitment fees?  
-Recru AI combines human expertise with AI support to help architecture and design firms like yours find the right talent quickly and affordably.  
-Say goodbye to endless CVs and hello to better candidate shortlists.  
-
----
-
-**Call to Action:**  
-**Join us in transforming your hiring experience!**  
-Visit [recru.ai](http://recru.ai) to learn more!
-
---- 
-
-**Visual Elements:**  
-- Use brand colors and logo.  
-- Include imagery of architecture/design-related visuals.  
-- Ensure clean typography for clear readability.  
+### Call to Action
+**Ready to elevate your hiring? Explore how Recru AI can help you find the right fit faster!**

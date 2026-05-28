@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -124,13 +125,38 @@ def _normalize_file_path(file_value: Any) -> str:
 
 def build_source_text(article_url: str = "", uploaded_pdf=None) -> str:
     """Combine article and PDF source text into one prompt-ready block."""
-    article_text = extract_article_text(article_url) if article_url else ""
+    article_text = ""
     pdf_text = ""
+    pdf_label = ""
+    article_label = ""
+
+    if article_url:
+        article_label = article_url.strip()
+        try:
+            article_text = extract_article_text(article_url)
+        except Exception as exc:
+            warnings.warn(f"Could not read the article URL. Falling back to other inputs. {exc}")
+            if article_label:
+                article_text = f"Article source URL: {article_label}\nNo readable text could be extracted from the link."
+
     if uploaded_pdf:
+        pdf_label = _normalize_file_path(uploaded_pdf)
+        pdf_label = Path(pdf_label).name if pdf_label else ""
         try:
             pdf_text = extract_pdf_text(uploaded_pdf)
         except Exception as exc:
-            raise RuntimeError(f"Could not read the uploaded PDF: {exc}") from exc
+            warnings.warn(f"Could not read the uploaded PDF. Falling back to other inputs. {exc}")
+            if pdf_label:
+                pdf_text = (
+                    f"Uploaded PDF: {pdf_label}\n"
+                    "No readable text could be extracted from the file."
+                )
+        else:
+            if not pdf_text.strip() and pdf_label:
+                pdf_text = (
+                    f"Uploaded PDF: {pdf_label}\n"
+                    "No readable text could be extracted from the file."
+                )
 
     if article_text and pdf_text:
         combined = (

@@ -1,19 +1,7 @@
-🚨 Struggling to sift through endless CVs? You're not alone! 🚨 
+🎨✨ Is your design studio struggling to find the right talent? You're not alone. Many studios face the challenge of hiring quickly for crucial projects, but the competition is fierce.
 
-Many architecture and design firms face the challenge of finding qualified candidates quickly, only to be overwhelmed by unfiltered applications that don’t meet their needs. 
+With the pressure to meet deadlines and deliver high-quality work, it’s vital to have the right people on your team. That’s where Recru AI comes in. We combine human expertise with AI-supported workflows to deliver a shortlist of quality candidates tailored for architecture and design roles.
 
-**Here’s how to create an effective candidate shortlist:**
+Say goodbye to lengthy recruitment processes and costly agency fees. Let's simplify your hiring journey together! 
 
-1. **Define Role Requirements**: Clearly outline the essential skills (think software expertise like Revit or AutoCAD) and experience needed for the position.
-
-2. **Quality over Quantity**: Aim for a focused shortlist—better to have a few strong candidates than dozens of mediocre ones.
-
-3. **Use Tailored Screening**: Engage a recruitment partner who understands your specific design needs, ensuring every candidate aligns with your studio’s vision.
-
-4. **Portfolio Review**: Don’t skip this step! A resume might not showcase creativity or technical skills like a strong portfolio can.
-
-5. **Prioritize Fit**: Look for candidates who align not just with skillset but also with your company culture and client communication style.
-
-With Recru AI, we simplify the hiring process to help you create a shortlist of top talent faster and at a cost-effective rate. 
-
-Ready to streamline your hiring? Let’s chat! 💬 #Architecture #DesignTalent #Recruitment #RecruAI
+Ready to transform your hiring experience? DM us today! 📩 #DesignStudioHiring #RecruAI #CreativeRecruitment
