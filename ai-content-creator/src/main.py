@@ -1,6 +1,8 @@
 """Gradio frontend for the Recru AI content generator."""
 
+import shutil
 from pathlib import Path
+from uuid import uuid4
 
 try:
     import gradio as gr
@@ -51,17 +53,6 @@ LOGO_BACKGROUND_OPTIONS = [
     (f"{name} — {hex_value}", hex_value)
     for name, hex_value in LOGO_BACKGROUND_COLORS.items()
 ]
-CUSTOM_BACKGROUND_SWATCHES = [
-    ("Soft Blush Mist", "#FBE4EA"),
-    ("Powder Pink Glow", "#FCE9EE"),
-    ("Cream Glow", "#FFF9EE"),
-    ("Warm Ivory Light", "#FCF5E8"),
-    ("Lavender Mist", "#F0EAFE"),
-    ("Powder Blue Mist", "#E7F1FB"),
-    ("Sage Mist", "#E5EFE0"),
-    ("Mint Glow", "#EDF8F0"),
-    ("Peach Mist", "#FCE9DE"),
-]
 
 EXAMPLES = [
     ["LinkedIn Post", "new hiring initiative"],
@@ -71,29 +62,6 @@ EXAMPLES = [
     ["Blog Post", "architecture recruitment trends"],
     ["Email Newsletter", "design firm founder hiring pain points"],
 ]
-
-
-def render_background_preview(background_color, custom_background):
-    """Show the selected background as a small preview swatch."""
-    selected = custom_background.strip() if background_color == "Custom" and custom_background else BACKGROUND_COLORS.get(background_color, "#F7D6E0")
-    return f"""
-    <div class="bg-preview">
-        <div class="bg-preview-swatch" style="background: {selected};"></div>
-        <div class="bg-preview-meta">
-            <div class="bg-preview-label">Current background</div>
-            <div class="bg-preview-value">{selected.upper()}</div>
-        </div>
-    </div>
-    """
-
-
-def apply_custom_background_swatch(swatch_hex):
-    """Use a pastel swatch as the custom background and switch the selector to Custom."""
-    swatch_hex = (swatch_hex or "").strip() or "#F7D6E0"
-    return (
-        gr.update(value="Custom"),
-        gr.update(value=swatch_hex),
-    )
 
 
 def generate_content(content_type, topic, brand_mode="recru_ai", source_text="", visual_style=""):
@@ -208,7 +176,13 @@ def generate_all(
             custom_background,
         )
         if visual_image:
-            preview_png = visual_image
+            preview_source = Path(visual_image)
+            preview_png = str(
+                preview_source.with_name(
+                    f"{preview_source.stem}-{uuid4().hex[:8]}-preview{preview_source.suffix}"
+                )
+            )
+            shutil.copy2(preview_source, preview_png)
             render_pdf_from_png(visual_image, pdf_path)
 
     return (
@@ -336,16 +310,8 @@ def build_app():
                 gr.Markdown("Choose a background color for your generated social post.", elem_classes=["force-readable"])
                 custom_background = gr.Textbox(
                     label=None,
-                    value=CUSTOM_BACKGROUND_SWATCHES[0][1],
+                    value="#F7D6E0",
                     visible=False,
-                )
-                gr.HTML('<div class="badge-label">Pastel background swatches</div>')
-                background_swatch = gr.Dropdown(
-                    choices=CUSTOM_BACKGROUND_SWATCHES,
-                    value=CUSTOM_BACKGROUND_SWATCHES[0][1],
-                    label=None,
-                    show_label=False,
-                    elem_classes=["dark-select"],
                 )
                 gr.HTML('<div class="badge-label">Logo background color</div>')
                 logo_background_color = gr.Dropdown(
@@ -420,12 +386,6 @@ def build_app():
             outputs=[output_content, output_md, output_preview, output_pdf, output_png],
         )
 
-        background_swatch.change(
-            fn=apply_custom_background_swatch,
-            inputs=[background_swatch],
-            outputs=[background_color, custom_background],
-        )
-
     return demo
 
 
@@ -434,7 +394,12 @@ if __name__ == "__main__":
     app = build_app()
     app.launch(
         inbrowser=True,
-        server_port=None,
+        server_name="0.0.0.0",
+        server_port=7860,
+        allowed_paths=[
+            str(PROJECT_ROOT / "outputs"),
+            str(PROJECT_ROOT / "assets"),
+        ],
         theme=gr.themes.Soft(),
         css="""
         .shell {
@@ -640,6 +605,10 @@ if __name__ == "__main__":
         #content-type-pills label * {
             color: #ffffff !important;
             opacity: 1 !important;
+        }
+        #content-type-pills label::before,
+        #content-type-pills label::after {
+            content: none !important;
         }
         #content-type-pills input[type="radio"] {
             position: absolute;

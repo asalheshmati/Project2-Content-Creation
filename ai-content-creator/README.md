@@ -1,30 +1,38 @@
-# Recru AI – Hybrid AI Recruitment Content Generator
+# Recru AI Content Studio
 
 ## Project Overview
 
-This project is a beginner-friendly AI content generation app.
+This project is a beginner-friendly Gradio app for creating recruitment and employer-brand content for the creative industry.
 
-It reads markdown documents from two knowledge bases:
+It combines:
 
 - A primary knowledge base with Recru AI brand information
 - A secondary knowledge base with recruitment market context
+- Optional source inputs such as article links, uploaded PDFs, and white-label company logos
 
-Then it sends that information to an AI model and generates content that sounds specific to Recru AI.
+Then it sends that information to an AI model and generates content that fits the selected format and brand mode.
 
 ## What the App Does
 
 The app can:
 
-- Read `.md` files
-- Load brand voice and audience documents
-- Load market trends and competitor documents
-- Create a content brief
-- Generate final content
-- Save the result in the `outputs/` folder as Markdown and PDF
-- Generate branded LinkedIn and Instagram visual posts as PNGs
-- Preview the branded PNG inside the Gradio app
-- Help compare Recru AI content against generic ChatGPT output
-- Launch a Gradio web UI for a smoother content-generation workflow
+- Launch a dark, premium Gradio interface
+- Let you choose from six content types:
+  - LinkedIn Post
+  - LinkedIn Card
+  - Instagram Card
+  - Instagram Caption
+  - Blog Post
+  - Email Newsletter
+- Switch between `Manual Prompt` and `Create from Source`
+- Generate content from a topic, article link, PDF, or uploaded company logo
+- Switch into white-label mode when a company logo is uploaded
+- Generate branded visual posts for LinkedIn Card and Instagram Card
+- Let you pick visual style, background color, pastel swatches, and logo background color
+- Preview the generated content and visual output inside the app
+- Save generated content as Markdown and PDF
+- Save visual posts as PNG
+- Keep all generated files in the `outputs/` folder
 
 ## Tech Stack
 
@@ -145,13 +153,16 @@ Run:
 python src/main.py
 ```
 
-This launches the Gradio UI in your browser.
+This launches the Gradio UI in your browser at `http://127.0.0.1:7860`.
 
 ## Example Use
 
-The app asks what content you want to create.
+The app gives you two creation paths:
 
-Examples:
+- `Manual Prompt` for writing from scratch
+- `Create from Source` for article links, PDFs, and white-label logo uploads
+
+Content type examples:
 
 - LinkedIn Post
 - LinkedIn Card
@@ -160,9 +171,15 @@ Examples:
 - Blog Post
 - Email Newsletter
 
-You can also switch to the `Create from Source` tab to paste an article link, upload a PDF, and white-label the visual output with your own company logo.
+Visual post options include:
 
-Then it creates and saves the output.
+- Recru AI logo or uploaded company logo
+- Background color swatches
+- Logo background color swatches
+- PNG preview in the app
+- Download/save buttons for PNG and PDF
+
+Generated files are saved in `outputs/` with clean names based on the selected content type.
 
 ## Uniqueness Strategy
 
@@ -173,7 +190,8 @@ This project avoids generic AI output by using:
 - Audience pain points
 - Market trends
 - Competitor positioning
-- Human review
+- Optional source material from articles and PDFs
+- White-label support for company logos
 
 ## Final Deliverables
 
@@ -181,7 +199,7 @@ This project avoids generic AI output by using:
 - Working Python app
 - Knowledge base markdown files
 - Prompt templates
-- Generated content output
+- Generated content output in Markdown, PDF, and PNG
 - Uniqueness comparison
 - README.md
 - PROJECT_REQUIREMENTS.md

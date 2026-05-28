@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
@@ -81,6 +82,7 @@ def extract_html_text(html: str) -> str:
 
 def extract_pdf_text(pdf_path) -> str:
     """Extract text from a PDF file path."""
+    pdf_path = _normalize_file_path(pdf_path)
     if not pdf_path:
         return ""
 
@@ -98,10 +100,37 @@ def extract_pdf_text(pdf_path) -> str:
     return _truncate(_unique_lines("\n".join(pieces)))
 
 
+def _normalize_file_path(file_value: Any) -> str:
+    """Convert Gradio upload values or plain paths into a usable file path string."""
+    if not file_value:
+        return ""
+
+    if isinstance(file_value, (str, Path)):
+        return str(file_value)
+
+    if isinstance(file_value, dict):
+        for key in ("path", "name", "filepath"):
+            value = file_value.get(key)
+            if value:
+                return str(value)
+
+    for attr in ("path", "name"):
+        value = getattr(file_value, attr, None)
+        if value:
+            return str(value)
+
+    return str(file_value)
+
+
 def build_source_text(article_url: str = "", uploaded_pdf=None) -> str:
     """Combine article and PDF source text into one prompt-ready block."""
     article_text = extract_article_text(article_url) if article_url else ""
-    pdf_text = extract_pdf_text(uploaded_pdf) if uploaded_pdf else ""
+    pdf_text = ""
+    if uploaded_pdf:
+        try:
+            pdf_text = extract_pdf_text(uploaded_pdf)
+        except Exception as exc:
+            raise RuntimeError(f"Could not read the uploaded PDF: {exc}") from exc
 
     if article_text and pdf_text:
         combined = (
