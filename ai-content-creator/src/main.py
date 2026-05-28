@@ -93,16 +93,6 @@ def apply_custom_background_swatch(swatch_hex):
     return (
         gr.update(value="Custom"),
         gr.update(value=swatch_hex),
-        render_background_preview("Custom", swatch_hex),
-    )
-
-
-def apply_custom_background_hex(custom_background):
-    """Keep the custom hex field and selector in sync."""
-    custom_background = (custom_background or "").strip() or "#F7D6E0"
-    return (
-        gr.update(value="Custom"),
-        render_background_preview("Custom", custom_background),
     )
 
 
@@ -234,19 +224,25 @@ def build_app():
     """Create the Gradio interface."""
     with gr.Blocks() as demo:
         with gr.Column(elem_classes=["shell", "dark-ui"]):
-            gr.HTML(
-                """
-                <div class="app-header">
-                    <div class="app-title">Recru AI Content Studio</div>
-                    <div class="app-tagline">
-                        Create polished hiring content for LinkedIn, Instagram, blogs, newsletters, and branded visual posts.
+            with gr.Row(elem_classes=["app-header"]):
+                gr.Image(
+                    value=str(LOGO_PATH),
+                    label=None,
+                    show_label=False,
+                    interactive=False,
+                    elem_id="header-logo",
+                )
+                gr.HTML(
+                    """
+                    <div class="app-copy">
+                        <div class="app-title">Recru AI</div>
+                        <div class="app-tagline">Content generator for the creative industry</div>
+                        <div class="app-subtext">
+                            Create polished hiring content for LinkedIn, Instagram, blogs, newsletters, and branded visual posts.
+                        </div>
                     </div>
-                    <div class="app-subtext">
-                        Choose a format, add your topic or source, then generate reusable content in seconds.
-                    </div>
-                </div>
-                """
-            )
+                    """
+                )
 
         with gr.Row(elem_classes=["app-layout"]):
             with gr.Column(scale=1, elem_classes=["card", "main-panel"]):
@@ -254,7 +250,7 @@ def build_app():
                 content_type = gr.Radio(
                     choices=CONTENT_TYPES,
                     value=CONTENT_TYPES[0],
-                    label=None,
+                    label=" ",
                     elem_id="content-type-pills",
                     elem_classes=["content-type-card"],
                 )
@@ -272,6 +268,7 @@ def build_app():
                         gr.HTML('<div class="badge-label">Topic</div>')
                         topic = gr.Textbox(
                             label=None,
+                            show_label=False,
                             placeholder="e.g. recruitment for architecture industry",
                             lines=2,
                         )
@@ -295,11 +292,13 @@ def build_app():
                         gr.HTML('<div class="badge-label">Article link</div>')
                         article_url = gr.Textbox(
                             label=None,
+                            show_label=False,
                             placeholder="Paste article URL here",
                         )
                         gr.HTML('<div class="badge-label">Upload PDF</div>')
                         uploaded_pdf = gr.File(
                             label=None,
+                            show_label=False,
                             file_types=[".pdf"],
                             type="filepath",
                         )
@@ -307,6 +306,7 @@ def build_app():
                         gr.HTML('<div class="badge-label">Upload company logo</div>')
                         company_logo_path = gr.File(
                             label=None,
+                            show_label=False,
                             file_types=[".png", ".jpg", ".jpeg", ".svg"],
                             type="filepath",
                         )
@@ -322,6 +322,7 @@ def build_app():
                     choices=VISUAL_STYLES,
                     value="Editorial announcement",
                     label=None,
+                    show_label=False,
                     elem_classes=["dark-select"],
                 )
                 gr.HTML('<div class="badge-label">Background color</div>')
@@ -329,32 +330,29 @@ def build_app():
                     choices=BACKGROUND_OPTIONS,
                     value="Recru Pink",
                     label=None,
+                    show_label=False,
                     elem_classes=["dark-select"],
                 )
                 gr.Markdown("Choose a background color for your generated social post.", elem_classes=["force-readable"])
-                gr.HTML('<div class="badge-label">Custom background hex</div>')
                 custom_background = gr.Textbox(
                     label=None,
-                    placeholder="#F7D6E0",
-                    elem_classes=["dark-select"],
+                    value=CUSTOM_BACKGROUND_SWATCHES[0][1],
+                    visible=False,
                 )
-                gr.Markdown("Pick a brighter pastel swatch to fill the custom hex field.", elem_classes=["force-readable"])
                 gr.HTML('<div class="badge-label">Pastel background swatches</div>')
                 background_swatch = gr.Dropdown(
                     choices=CUSTOM_BACKGROUND_SWATCHES,
                     value=CUSTOM_BACKGROUND_SWATCHES[0][1],
                     label=None,
+                    show_label=False,
                     elem_classes=["dark-select"],
-                )
-                background_preview = gr.HTML(
-                    render_background_preview("Recru Pink", ""),
-                    elem_id="background-preview",
                 )
                 gr.HTML('<div class="badge-label">Logo background color</div>')
                 logo_background_color = gr.Dropdown(
                     choices=LOGO_BACKGROUND_OPTIONS,
                     value="#F7D6E0",
                     label=None,
+                    show_label=False,
                     elem_id="logo-background-select",
                     elem_classes=["dark-select"],
                 )
@@ -365,39 +363,36 @@ def build_app():
                 )
 
             with gr.Column(scale=1, elem_classes=["card", "preview-panel"]):
-                gr.HTML('<div class="badge-label">Saved PDF</div>')
                 output_pdf = gr.DownloadButton(
-                    label="Download PDF",
+                    label="Save PDF",
                     value=None,
                     variant="secondary",
                     interactive=False,
                     elem_id="download-pdf-btn",
                     elem_classes=["download-button", "saved-pdf"],
                 )
-                gr.HTML('<div class="badge-label">Download PNG</div>')
                 output_png = gr.DownloadButton(
-                    label="Download PNG",
+                    label="Save PNG",
                     value=None,
                     variant="secondary",
                     interactive=False,
                     elem_id="download-png-btn",
                     elem_classes=["download-button"],
                 )
-                gr.HTML('<div class="badge-label">Generated preview</div>')
                 output_preview = gr.Image(
                     label=None,
+                    show_label=False,
                     interactive=False,
                     type="filepath",
                     elem_classes=["generated-preview", "preview-box"],
                 )
-                gr.HTML('<div class="badge-label">Generated content</div>')
                 output_content = gr.Markdown(
                     label=None,
+                    show_label=False,
                     elem_id="output-content",
                     elem_classes=["output-box"],
                 )
-                gr.HTML('<div class="badge-label">Saved Markdown</div>')
-                output_md = gr.File(label=None, elem_classes=["saved-markdown", "saved-label"])
+                output_md = gr.File(label=None, show_label=False, elem_classes=["saved-markdown", "saved-label"])
 
         with gr.Accordion("What this app does", open=False):
             gr.Markdown(
@@ -425,22 +420,10 @@ def build_app():
             outputs=[output_content, output_md, output_preview, output_pdf, output_png],
         )
 
-        background_color.change(
-            fn=render_background_preview,
-            inputs=[background_color, custom_background],
-            outputs=[background_preview],
-        )
-
-        custom_background.change(
-            fn=apply_custom_background_hex,
-            inputs=[custom_background],
-            outputs=[background_color, background_preview],
-        )
-
         background_swatch.change(
             fn=apply_custom_background_swatch,
             inputs=[background_swatch],
-            outputs=[background_color, custom_background, background_preview],
+            outputs=[background_color, custom_background],
         )
 
     return demo
@@ -451,7 +434,7 @@ if __name__ == "__main__":
     app = build_app()
     app.launch(
         inbrowser=True,
-        server_port=7864,
+        server_port=None,
         theme=gr.themes.Soft(),
         css="""
         .shell {
@@ -518,26 +501,54 @@ if __name__ == "__main__":
             display: none;
         }
         .app-header {
-            display: none;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            padding: 18px 20px;
+            border-radius: 20px;
+            background: rgba(75,77,85,0.88);
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+        }
+        #header-logo {
+            width: 86px !important;
+            min-width: 86px;
+            height: 86px !important;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(91,77,255,0.08);
+            box-shadow: inset 0 0 0 4px rgba(255,255,255,0.35);
+        }
+        #header-logo img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            border-radius: 999px;
+            display: block;
+        }
+        .app-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         .app-title {
             color: #ffffff;
-            font-size: 42px;
+            font-size: 40px;
             font-weight: 800;
             letter-spacing: -0.04em;
-            margin-bottom: 10px;
             line-height: 1.08;
         }
         .app-tagline {
-            color: rgba(255, 255, 255, 0.88);
+            color: rgba(196, 181, 253, 0.98);
             font-size: 20px;
-            font-weight: 500;
+            font-weight: 700;
             max-width: 780px;
             line-height: 1.4;
-            margin-bottom: 8px;
         }
         .app-subtext {
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255, 255, 255, 0.72);
             font-size: 16px;
             line-height: 1.5;
             max-width: 720px;
@@ -608,6 +619,9 @@ if __name__ == "__main__":
         #content-type-pills {
             margin-bottom: 14px;
         }
+        #content-type-pills > label {
+            display: none !important;
+        }
         #content-type-pills label {
             display: inline-flex;
             align-items: center;
@@ -628,8 +642,12 @@ if __name__ == "__main__":
             opacity: 1 !important;
         }
         #content-type-pills input[type="radio"] {
-            accent-color: #5B4DFF;
-            border: 1px solid #94A3B8;
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            margin: 0;
+            pointer-events: none;
         }
         #content-type-pills label:hover {
             border-color: rgba(109,93,252,0.45);
@@ -644,10 +662,6 @@ if __name__ == "__main__":
         #content-type-pills label:has(input[type="radio"]:checked) * {
             color: #ffffff !important;
             fill: #ffffff !important;
-        }
-        #content-type-pills input[type="radio"] {
-            margin-right: 0;
-            accent-color: #ec4899;
         }
         .bg-preview {
             display: flex;
@@ -778,6 +792,15 @@ if __name__ == "__main__":
             z-index: 3;
             margin-top: 8px;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: fit-content;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(47, 58, 74, 0.95);
+            border: 1px solid rgba(255,255,255,0.12);
+            cursor: pointer;
         }
         #generate-visual-toggle label {
             display: flex;
@@ -786,6 +809,7 @@ if __name__ == "__main__":
             cursor: pointer;
             color: #ffffff !important;
             font-weight: 700 !important;
+            margin: 0 !important;
         }
         #generate-visual-toggle input[type="checkbox"] {
             width: 18px;
@@ -796,6 +820,10 @@ if __name__ == "__main__":
             cursor: pointer;
             opacity: 1 !important;
             pointer-events: auto !important;
+        }
+        #generate-visual-toggle:hover {
+            border-color: rgba(255,255,255,0.22);
+            background: rgba(47, 58, 74, 1);
         }
         #generate-visual-toggle * {
             pointer-events: auto !important;
